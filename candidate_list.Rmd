@@ -2,8 +2,13 @@
 title: "candidate_list"
 author: "Thomas"
 date: "4-11-2017"
-output: html_document
+output: rmarkdown::github_document
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set()
+```
+
 # Set-up
 
 ```{r working.directory}
