@@ -1,0 +1,109 @@
+---
+title: "candidate_list"
+author: "Thomas"
+date: "4-11-2017"
+output: html_document
+---
+# Set-up
+
+```{r working.directory}
+setwd("/Users/Thomas/Documents/TacoRscript/")
+getwd()
+```
+
+```{r env.setup, echo=TRUE, message=FALSE, warning=FALSE}
+# your environment setup
+library(jiebaR)
+library(stringr)
+library(tidyverse)
+```
+
+# Read in materials
+
+Put the document that needs to be read-in in corpus.
+```{r}
+corpus <- scan('/Users/Thomas/Documents/TacoRscript/Shiji_biao.txt', what='char', encoding='UTF-8')
+masterlist <- unique(scan('/Users/Thomas/Documents/TacoRscript/masterlist.txt', what='char'))
+rejectlist <- '/Users/Thomas/Documents/TacoRscript/rejected.txt'
+```
+
+# Segmentation
+
+## Assign a cutter worker
+```{r}
+cutter = worker("tag", stop_word = rejectlist)
+```
+
+
+## using masterlist into jieba dict to do the segmentation
+```{r}
+for (i in 1:length(masterlist)){
+  new_user_word(cutter,masterlist[i],"IDEO")
+}
+```
+
+
+## segmentation
+```{r}
+result_segment = cutter[corpus]
+result_segment1 <- result_segment
+```
+
+# Output
+
+```{r}
+### segmentation with result output format
+tag_name <- names(result_segment)
+position <- grep('IDEO', tag_name, perl=T)
+
+# concatenate masterlist with _IDEO
+for (i in 1:length(position)){
+  result_segment[[position[i]]][1] <- paste(result_segment[[position[i]]][1], 'IDEO', sep='_')
+}
+
+seg_corpus <- as.vector(result_segment)
+
+# output seg_corpus to a txt file
+write.table(seg_corpus, 'seg_corpus.txt', quote=F, row.names = F, col.names = F)
+```
+
+
+# Candidate wordlist
+
+```{r}
+candidate_corpus <- as.vector(result_segment1)
+candidate_corpus <- candidate_corpus[-c(1:29)]
+candidate_corpus <- paste(candidate_corpus, collapse='')
+seg_candidate <- unlist(strsplit(candidate_corpus,split=''))
+```
+
+```{r}
+candidatelist <- c()
+for (i in 1:length(seg_candidate)){
+  if (i != length(seg_candidate)){
+    if (seg_candidate[i]==seg_candidate[i+1]){
+      candidatelist[i] <- paste(seg_candidate[i], seg_candidate[i+1], sep='')
+    }else{
+      next
+    }
+  }
+}
+```
+
+```{r}
+candidatelist <- candidatelist[!is.na(candidatelist)]
+same <- setdiff(unique(candidatelist), masterlist)
+
+write.table(same, 'candidatelist.txt', quote=F, sep='\n',
+            row.names = F, col.names = F)
+
+df <- as.tibble(same)
+df
+```
+
+
+
+
+
+
+
