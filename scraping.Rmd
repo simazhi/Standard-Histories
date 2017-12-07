@@ -61,7 +61,7 @@ teksten <- map_df(link_check, #use purrr map_df to get all in 1 df
 Write in a document
 
 ```{r}
-write.table(teksten, "/Users/Thomas/Desktop/liangshu.txt") #change name
+write.table(teksten, "./liangshu.txt") #change name
 ```
 
 
